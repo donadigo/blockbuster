@@ -39,24 +39,18 @@ public class Gala.Plugins.Blockbuster.WindowMovementTracker : Object {
 
     public void watch ()
     {
-        display.grab_op_begin.connect ((screen, window, op) => {
-            if (window == null) {
-                return;
-            }
+        display.grab_op_begin.connect (on_grab_op_begin);
+        display.grab_op_end.connect (on_grab_op_end);
+    }
 
-            current_window = window;
-
-            var actor = (Meta.WindowActor)window.get_compositor_private ();
-            start_x = actor.x;
-            start_y = actor.y;
-            maximize_flags = window.get_maximized ();
-
-            current_window.position_changed.connect (on_position_changed);
-        });
-
-        display.grab_op_end.connect ((screen, window, op) => {
+    public void unwatch () 
+    {
+        display.grab_op_begin.disconnect (on_grab_op_begin);
+        display.grab_op_end.disconnect (on_grab_op_end); 
+        
+        if (current_window != null) {
             current_window.position_changed.disconnect (on_position_changed);
-        });
+        }
     }
 
     public void restore_window_state ()
@@ -69,10 +63,33 @@ public class Gala.Plugins.Blockbuster.WindowMovementTracker : Object {
             current_window.maximize (maximize_flags);
             animation_settings.set_int ("snap-duration", previous);
 
-            // kill_window_effects does not reset the translation
-            // and that's the only thing we want to do
+            /**
+             * kill_window_effects does not reset the translation
+             * and that's the only thing we want to do
+             */  
             actor.set_translation (0.0f, 0.0f, 0.0f);
         }
+    }
+
+    private void on_grab_op_begin (Meta.Screen screen, Meta.Window? window, Meta.GrabOp op)
+    {
+        if (window == null) {
+            return;
+        }
+
+        current_window = window;
+
+        var actor = (Meta.WindowActor)window.get_compositor_private ();
+        start_x = actor.x;
+        start_y = actor.y;
+        maximize_flags = window.get_maximized ();
+
+        current_window.position_changed.connect (on_position_changed);
+    }
+
+    private void on_grab_op_end (Meta.Screen screen, Meta.Window? window, Meta.GrabOp op) 
+    {
+        current_window.position_changed.disconnect (on_position_changed);
     }
 
     private void on_position_changed (Meta.Window window)

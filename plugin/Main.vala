@@ -21,7 +21,6 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 	Gala.WindowManager? wm = null;
 
 	Gee.LinkedList<unowned Meta.Window> dirty_windows;
-	Gee.HashMap<string, AppConfig> workspace_bindings;
 	Gee.HashMap<unowned Meta.Window, int> window_owners;
 
 	WindowMovementTracker tracker;
@@ -34,11 +33,7 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		PluginSettings.get_default ().schema.changed.connect (on_settings_changed);
 
 		dirty_windows = new Gee.LinkedList<unowned Meta.Window> ();
-
 		window_owners = new Gee.HashMap<unowned Meta.Window, int> ();
-
-		workspace_bindings = new Gee.HashMap<string, AppConfig> ();
-		load_workspace_bindings ();
 
 		/**
 		 * Using the Meta.Display.window_created signal doesn't work
@@ -52,7 +47,7 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 
 		tracker = new WindowMovementTracker (wm.get_screen ().get_display ());
 		tracker.open.connect (open_multitasking_view);
-		tracker.watch ();
+		update_tracker ();
 	}
 
 	void open_multitasking_view (Meta.Window window, int x, int y)
@@ -68,8 +63,10 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		multitasking_view.open (null);
 
 		Gala.WindowClone? window_clone = null;
-		// We stream the results from an iterator to be most efficient
-		// when checking which actor contains the target window
+		/**
+		 * We stream the results from an iterator to be more efficient
+		 * at checking which actor contains the target window
+		 */
 		get_workspace_clones ((Clutter.Actor)multitasking_view, (ws_clone) => {
 			get_window_clones (ws_clone, (wc) => {
 				if (wc.window == window) {
@@ -152,78 +149,31 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		}
 	}
 
-	//  static Gala.WindowClone? get_window_clone_by_window (Gee.ArrayList<Gala.WorkspaceClone> ws_clones, Meta.Window window)
-	//  {
-	//  	foreach (var ws_clone in ws_clones) {
-	//  		var clones = get_window_clones (ws_clone);
-	//  		foreach (var wc in clones) {
-	//  			if (wc.window == window) {
-	//  				return wc;
-	//  			}
-	//  		}
-	//  	}
-
-	//  	return null;
-	//  }
-
-
-	//  static Gee.ArrayList<Gala.WorkspaceClone> get_workspace_clones (Clutter.Actor multitasking_view)
-	//  {
-	//  	var clones = new Gee.ArrayList<Gala.WorkspaceClone> ();
-	//  	foreach (var actor in multitasking_view.get_children ()) {
-	//  		foreach (var a in actor.get_children ()) {
-	//  			if (a.get_type ().name () == "GalaWorkspaceClone") {
-	//  				clones.add ((Gala.WorkspaceClone)a);
-	//  			}
-	//  		}
-	//  	}
-
-	//  	return clones;
-	//  }
-	
-	//  static Gala.WindowClone? get_window_clone_by_window (Gee.ArrayList<Gala.WorkspaceClone> ws_clones, Meta.Window window)
-	//  {
-	//  	foreach (var ws_clone in ws_clones) {
-	//  		var clones = get_window_clones (ws_clone);
-	//  		foreach (var wc in clones) {
-	//  			if (wc.window == window) {
-	//  				return wc;
-	//  			}
-	//  		}
-	//  	}
-
-	//  	return null;
-	//  }
-
-	//  static Gee.ArrayList<Gala.WindowClone> get_window_clones (Gala.WorkspaceClone ws_clone)
-	//  {
-	//  	var clones = new Gee.ArrayList<Gala.WindowClone> ();
-	//  	foreach (var actor in ws_clone.window_container.get_children ()) {
-	//  		if (actor.get_type ().name () == "GalaWindowClone") {
-	//  			clones.add ((Gala.WindowClone)actor);
-	//  		}
-	//  	}
-
-	//  	return clones;
-	//  }
-
-	public override void destroy () {
+	public override void destroy ()
+	{
 		dirty_windows.clear ();
-		workspace_bindings.clear ();
 		window_owners.clear ();
-	}
-
-	void load_workspace_bindings () {
-		workspace_bindings = PluginSettings.get_default ().get_config ();
 	}
 
 	void on_settings_changed (string key) {
 		switch (key) {
 			case "app-workspace-bindings":
-				load_workspace_bindings ();
+				PluginSettings.get_default ().force_update_config ();
+				break;
+			case "snap-to-bottom":
+				update_tracker ();
 				break;
 			default:
 				break;
+		}
+	}
+
+	void update_tracker ()
+	{
+		if (PluginSettings.get_default ().schema.get_boolean ("snap-to-bottom")) {
+			tracker.watch ();
+		} else {
+			tracker.unwatch ();
 		}
 	}
 
@@ -257,7 +207,7 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 	}
 
 	unowned Meta.Window? process_wnck_window (Wnck.Window window) {
-		// TODO: if the is not already opened, consider processing dialog windows
+		// TODO: if the app is not already opened, consider processing dialog windows
 		if (!Utils.wnck_is_normal (window)) {
 			return null;
 		}
@@ -273,6 +223,7 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			return mwin;
 		}
 
+		var workspace_bindings = PluginSettings.get_default ().config;
 		if (!workspace_bindings.has_key (desktop_file)) {
 			return mwin;
 		}
@@ -300,7 +251,11 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		watch_meta_window (mwin);
 
 		if (config.maximize) {
-			mwin.maximize (Meta.MaximizeFlags.BOTH);
+			if (mwin.can_maximize ()) {
+				mwin.maximize (Meta.MaximizeFlags.BOTH);
+			}
+		} else if (mwin.maximized_vertically || mwin.maximized_horizontally) { // If the app remembered previous maximized state, unmaximize
+			mwin.unmaximize (Meta.MaximizeFlags.BOTH);
 		}
 
 		if (config.focus) {
@@ -386,6 +341,7 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			return false;
 		}
 
+		var workspace_bindings = PluginSettings.get_default ().config;
 		var config = workspace_bindings[desktop_file];
 		return config.workspace == window.get_workspace ().index ();
 	}

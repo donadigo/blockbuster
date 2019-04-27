@@ -114,7 +114,7 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
             row.destroy ();
         }
 
-        var config = PluginSettings.get_default ().get_config ();
+        var config = PluginSettings.get_default ().config;
         foreach (var entry in config.entries) {
             var app_config = entry.value;
             if (app_config.workspace != index) {
@@ -133,15 +133,20 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
 
     private void update_settings () {
         unowned PluginSettings settings = PluginSettings.get_default ();
-        var config = settings.get_config ({ index });
+        var filtered = new Gee.HashMap<string, AppConfig> ();
+        foreach (var entry in settings.config.entries) {
+            if (entry.value.workspace != index) {
+                filtered[entry.key] = entry.value;
+            }
+        }
 
         foreach (var child in list.get_children ()) {
             var row = (AppRow)child;
 
             var app_config = new AppConfig (index, row.maximized, row.focused);
-            config[row.app_info.get_id ()] = app_config;
+            filtered[row.app_info.get_id ()] = app_config;
         }
 
-        settings.set_config (config);
+        settings.apply_config (filtered);
     }
 }

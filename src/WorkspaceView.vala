@@ -86,13 +86,13 @@ public class Blockbuster.WorkspaceView : Gtk.Grid {
     }
 
     private void init_update () {
-        var config = PluginSettings.get_default ().get_config ();
+        var config = PluginSettings.get_default ().config;
+        var last_workspace = config.max ((a, b) => {
+            return a.value.workspace > b.value.workspace ? -1 : 1;
+        });
 
-        int max = 0;
-        foreach (var app_config in config.values) {
-			max = int.max (max, app_config.workspace + 1);
-        }
-
+        int max = last_workspace.value.workspace + 1;
+        
         for (int i = 0; i < max; i++) {
             add_new_workspace ();
         }
@@ -101,7 +101,7 @@ public class Blockbuster.WorkspaceView : Gtk.Grid {
     }
 
     private void update () {
-        var config = PluginSettings.get_default ().get_config ();
+        var config = PluginSettings.get_default ().config;
 
         var workspace_map = new Gee.HashMap<int, Gee.ArrayList<string>> ();
 

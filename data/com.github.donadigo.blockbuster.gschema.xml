@@ -13,5 +13,9 @@
             <default>false</default>
             <summary>Whether to switch to previous workspace when the current becomes empty</summary>
         </key>
+        <key name="snap-to-bottom" type="b">
+            <default>false</default>
+            <summary>Allow dragging a window to the bottom of the screen to open the multitasking view with it selected</summary>
+        </key>
     </schema>
 </schemalist>

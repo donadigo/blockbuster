@@ -26,6 +26,8 @@ public class Blockbuster.Common.PluginSettings : Object {
         return instance;
     }
 
+    public Gee.HashMap<string, AppConfig> config { get; private set; }
+
     public Settings schema { get; construct; }
     public signal void bindings_changed ();
 
@@ -39,10 +41,24 @@ public class Blockbuster.Common.PluginSettings : Object {
     }
 
     protected PluginSettings () {
+        config = new Gee.HashMap<string, AppConfig> ();
+        force_update_config ();
     }
 
-    public Gee.HashMap<string, AppConfig> get_config (int[] exclude = {}) {
-        var map = new Gee.HashMap<string, AppConfig> ();
+    /**
+     * We have two modes in which PluginSettings can work:
+     * 1. A "lazy" mode which is used by the UI. In this mode
+     * we do not listen for setting changes at all and only update
+     * the internal config when the user actually changes something
+     * in the UI. This allows us to query the bindings key
+     * only once at startup.
+     * 
+     * 2. A "listen" mode which is used by the plugin. In this mode
+     * the plugin calls this method to forcefully update the config
+     * when the settings change (possibly emitted by the UI).
+     */
+    public void force_update_config () {
+        config.clear ();
 
         var val = schema.get_value ("app-workspace-bindings");
         for (int i = 0; i < val.n_children (); i++) {
@@ -52,34 +68,26 @@ public class Blockbuster.Common.PluginSettings : Object {
             }
             
             int workspace_id = child.get_child_value (1).get_int32 ();
-            if (workspace_id in exclude) {
-                continue;
-            }
 
 			string app_id = child.get_child_value (0).get_string ();
 			bool maximize = child.get_child_value (2).get_boolean ();
             bool focus = child.get_child_value (3).get_boolean ();
             
-            var config = new AppConfig (workspace_id, maximize, focus);
-            map[app_id] = config;
+            var app_config = new AppConfig (workspace_id, maximize, focus);
+            config[app_id] = app_config;
         }
-
-        return map;
     }
 
-    public void set_config (Gee.HashMap<string, AppConfig> config) {
+    public void apply_config (Gee.HashMap<string, AppConfig> new_config) {
         var builder = new VariantBuilder (new VariantType ("a(sibb)"));
 
-        foreach (var entry in config.entries) {
+        foreach (var entry in new_config.entries) {
             string app_id = entry.key;
             var app_config = entry.value;
             builder.add ("(sibb)", app_id, app_config.workspace, app_config.maximize, app_config.focus);
         }
 
-        schema.set_value ("app-workspace-bindings", builder.end ());        
-    }
-
-    public void set_config_variant (Variant v) {
-        schema.set_value ("app-workspace-bindings", v);
+        config = new_config;
+        schema.set_value ("app-workspace-bindings", builder.end ());
     }
 }

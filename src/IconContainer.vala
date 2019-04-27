@@ -18,9 +18,10 @@
 
 public class Blockbuster.IconContainer : Gtk.Box {
     private const int MAX_ICONS = 3;
+    private Gtk.Image? more_image;
     construct {
         orientation = Gtk.Orientation.HORIZONTAL;
-        column_spacing = 6;
+        spacing = 6;
     }
 
     private void clear () {
@@ -32,14 +33,24 @@ public class Blockbuster.IconContainer : Gtk.Box {
     public void set_displayed_ids (Gee.ArrayList<string> ids) {
         clear ();
 
-        int m = int.min (MAX_ICONS, ids.size);
-        foreach (string id in ids) {
+        int n = int.min (MAX_ICONS, ids.size);
+        for (int i = 0; i < n; i++) {
+            string id = ids[i];
             var app_info = new DesktopAppInfo (id);
             
             var image = new Gtk.Image.from_gicon (app_info.get_icon (), Gtk.IconSize.DND);
             image.pixel_size = 48;
             image.show_all ();
             add (image);
+        }
+
+        if (ids.size > MAX_ICONS) {
+            if (more_image == null) {
+                more_image = new Gtk.Image.from_icon_name ("view-more-horizontal-symbolic", Gtk.IconSize.DND);
+            }
+
+            more_image.show_all ();
+            add (more_image);
         }
     }
 }
