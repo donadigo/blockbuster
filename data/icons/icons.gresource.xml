@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/com/github/donadigo/blockbuster/icons">
+    <file alias="preferences-desktop-add.svg" compressed="true" preprocess="xml-stripblanks">24/preferences-desktop-add.svg</file>
+    <!-- <file alias="preferences-desktop-add.svg" compressed="true" preprocess="xml-stripblanks">48/preferences-desktop-add.svg</file> -->
+  </gresource>
+</gresources>

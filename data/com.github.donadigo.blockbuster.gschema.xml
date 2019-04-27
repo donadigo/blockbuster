@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+    <schema id="com.github.donadigo.blockbuster.plugin" path="/com/github/donadigo/blockbuster/plugin/" gettext-domain="blockbuster">
+        <key name="app-workspace-bindings" type="a(sibb)">
+            <default>[]</default>
+            <summary>Array of application ID's and their workspace indexes</summary>
+        </key>
+        <key name="switch-workspace-on-maximize" type="b">
+            <default>false</default>
+            <summary>Whether to switch to another workspace when a window is being maximized</summary>
+        </key>
+        <key name="return-workspace-on-empty" type="b">
+            <default>false</default>
+            <summary>Whether to switch to previous workspace when the current becomes empty</summary>
+        </key>
+    </schema>
+</schemalist>

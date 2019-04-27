@@ -1,0 +1,110 @@
+@define-color base_color #1A2958;
+@define-color shadow_color #0C1120;
+@define-color fg_color @SILVER_100;
+@define-color text_color @fg_color;
+@define-color titlebar_color shade (@base_color, 0.75);
+
+label,
+entry {
+	text-shadow: 0 1px shade (@base_color, 0.8);
+}
+
+entry {
+    background-image:
+        linear-gradient(
+            to bottom,
+            shade (
+                @base_color,
+                0.87
+            ),
+            shade (
+                @base_color,
+                0.97
+            )
+        );
+
+    box-shadow:
+        inset 0 1px 0 0 alpha (@inset_dark_color, 0.7),
+        inset 0 0 0 1px alpha (@inset_dark_color, 0.3),
+	    0 1px 0 0 alpha (@inset_dark_color, 0.3);
+}
+
+popover {
+    box-shadow:
+        inset 0 -1px 0 0 alpha (@base_color, 0.5),
+        0 3px 6px alpha (#000, 0.16),
+    	0 3px 6px alpha (#000, 0.23);
+}
+
+
+list button.flat {
+	-gtk-icon-shadow: none;
+}
+
+row:selected label {
+	text-shadow: none;
+}
+
+check {
+    box-shadow:
+        inset 0 1px 0 0 alpha (@BLUEBERRY_300, 0.7),
+        inset 0 0 0 1px alpha (@BLUEBERRY_300, 0.4),
+	    0 1px 1px 0 shade (@base_color, 0.95);
+}
+
+row:selected check {
+    box-shadow:
+        inset 0 1px 0 0 alpha (@BLUEBERRY_300, 0.7),
+        inset 0 0 0 1px alpha (@BLUEBERRY_300, 0.4)
+}
+
+.titlebar .stack-switcher button:checked label,
+.titlebar .stack-switcher button:active label {
+    text-shadow: 0 1px shade (@BLUEBERRY_300, 0.8);
+}
+
+.titlebar .stack-switcher button:active,
+.titlebar .stack-switcher button:checked {
+    background-color: @BLUEBERRY_300;
+    color: @base_color;
+    border-color: #000;
+    box-shadow:
+        inset 0 0 0 1px alpha (@base_color, 0.05),
+        inset 0 1px 0 0 alpha (@base_color, 0.45),
+        inset 0 -1px 0 0 alpha (@base_color, 0.15),
+        0 0 0 1px alpha (@base_color, 0.25);
+    transition: all 100ms ease-out;
+}
+
+.workspace-box {
+    box-shadow: none;
+    background-image:
+        linear-gradient(
+            to top,
+            #131D3C,
+            #203064
+	);
+
+    border-color: transparent;
+    transition: box-shadow 200ms ease-in-out;
+    box-shadow:
+        inset 0 0 0 1px alpha(white, 0.05),
+        inset 0 1px 0 0 alpha(white, 0.45),
+        inset 0 -1px 0 0 alpha(white, 0.15),
+        0 3px 2px -1px alpha(black, 0.15),
+        0 3px 5px alpha(black, 0.1);
+}
+
+.workspace-box:hover {
+    box-shadow:
+        inset 0 0 0 1px alpha (shade (@shadow_color, 1.7), 0.05),
+        inset 0 1px 0 0 alpha (shade (@shadow_color, 1.7), 0.45),
+        inset 0 -1px 0 0 alpha (shade (@shadow_color, 1.7), 0.15),
+        0 10px 8px -11px alpha (shade (@shadow_color, 0.6), 0.8),
+        0 8px 12px alpha (shade (@shadow_color, 0.8), 0.6);
+}
+
+/* 
+.workspace-box:active {
+	background: linear-gradient(to bottom, alpha(@titlebar_color, 0.2), alpha(@BLUEBERRY_300, 0.05));
+} */
