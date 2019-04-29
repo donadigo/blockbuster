@@ -31,6 +31,8 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
         }
     }
 
+    public signal void updated ();
+
     private Gtk.ListBox list;
     private AppChooser app_chooser;
 
@@ -71,7 +73,6 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
 
         app_chooser = new AppChooser (add_button);
         app_chooser.modal = true;
-        app_chooser.init_list ();
 
         add (frame);
         add (toolbar);
@@ -97,6 +98,7 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
 
             list.remove (selected);
             update_settings ();
+            update_app_chooser ();
         }
     }
 
@@ -107,6 +109,7 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
         list.show_all ();
 
         update_settings ();
+        update_app_chooser ();
     }
 
     private void update () {
@@ -129,16 +132,13 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
             list.add (row);
             list.show_all ();
         }
+
+        update_app_chooser ();
     }
 
     private void update_settings () {
         unowned PluginSettings settings = PluginSettings.get_default ();
-        var filtered = new Gee.HashMap<string, AppConfig> ();
-        foreach (var entry in settings.config.entries) {
-            if (entry.value.workspace != index) {
-                filtered[entry.key] = entry.value;
-            }
-        }
+        var filtered = settings.filter_config (index);
 
         foreach (var child in list.get_children ()) {
             var row = (AppRow)child;
@@ -148,5 +148,15 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
         }
 
         settings.apply_config (filtered);
+        updated ();
+    }
+
+    private void update_app_chooser () {
+        string[] ids = {};
+        foreach (var row in list.get_children ()) {
+            ids += ((AppRow)row).app_info.get_id ();
+        }
+
+        app_chooser.existing_ids = ids;
     }
 }

@@ -38,7 +38,14 @@ public class Blockbuster.MainWindow : Gtk.Window {
         workspace_view.notify["n-workspaces"].connect (update_header_bar);
         workspace_view.entered_configuration_view.connect (on_entered_configuration_view);
 
+        /**
+         * We use this hack to workaround an issue where the window contents
+         * would not update after e.g removal of a workspace
+         */
+        workspace_view.update_window.connect (() => queue_resize ());
+
         stack = new Gtk.Stack ();
+        stack.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
         stack.notify["visible-child-name"].connect (update_header_bar);
         stack.add_titled (workspace_view, WORKSPACE_VIEW_ID, _("Applications"));
         stack.add_titled (new Gtk.Grid (), BEHAVIOUR_VIEW_ID, _("Behaviour"));

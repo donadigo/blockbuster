@@ -23,6 +23,18 @@ public class Blockbuster.AppChooser : Gtk.Popover {
     private Gtk.ListBox list;
     private Gtk.SearchEntry search_entry;
 
+    private string[] _existing_ids;
+    public string[] existing_ids {
+        get {
+            return _existing_ids;
+        }
+
+        set {
+            _existing_ids = value;
+            list.invalidate_filter ();
+        }
+    }
+
     public signal void app_chosen (AppInfo app_info);
 
     public AppChooser (Gtk.Widget widget) {
@@ -59,14 +71,12 @@ public class Blockbuster.AppChooser : Gtk.Popover {
         search_entry.search_changed.connect (apply_filter);
 
         apply_filter ();
-    }
 
-    public void init_list () {
         foreach (var app_info in AppInfo.get_all ()) {
             if (app_info.should_show ()) {
                 append_item_from_app_info (app_info);
             }
-        }
+        }        
     }
 
     private void append_item_from_app_info (AppInfo app_info) {
@@ -87,6 +97,10 @@ public class Blockbuster.AppChooser : Gtk.Popover {
 
     private bool filter_function (Gtk.ListBoxRow list_box_row) {
         var app_row = (AppChooserRow)list_box_row.get_child ();
+
+        if (app_row.app_info.get_id () in existing_ids) {
+            return false;
+        }
 
         string query = search_entry.text.down ();
         unowned string? description = app_row.app_info.get_description ();

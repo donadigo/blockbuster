@@ -58,6 +58,10 @@ row:selected check {
         inset 0 0 0 1px alpha (@BLUEBERRY_300, 0.4)
 }
 
+.app-notification label {
+	text-shadow: none;
+}
+
 .titlebar .stack-switcher button:checked label,
 .titlebar .stack-switcher button:active label {
     text-shadow: 0 1px shade (@BLUEBERRY_300, 0.8);
