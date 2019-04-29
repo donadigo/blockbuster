@@ -29,20 +29,27 @@ public class Blockbuster.Common.PluginSettings : Object {
     public Gee.HashMap<string, AppConfig> config { get; private set; }
 
     public Settings schema { get; construct; }
-    public signal void bindings_changed ();
+
+    private Variant? config_variant;
 
     construct {
         schema = new Settings ("com.github.donadigo.blockbuster.plugin");
-        schema.changed.connect ((key) => {
-            if (key == "app-workspace-bindings") {
-                bindings_changed ();
-            }
-        });
     }
 
     protected PluginSettings () {
         config = new Gee.HashMap<string, AppConfig> ();
         force_update_config ();
+    }
+
+    public Gee.HashMap<string, AppConfig> filter_config (int blacklist_workspace) {
+        var filtered = new Gee.HashMap<string, AppConfig> ();
+        foreach (var entry in config.entries) {
+            if (entry.value.workspace != blacklist_workspace) {
+                filtered[entry.key] = entry.value;
+            }
+        }
+
+        return filtered;
     }
 
     /**
@@ -78,6 +85,17 @@ public class Blockbuster.Common.PluginSettings : Object {
         }
     }
 
+    public void apply_remove_workspace (int index) {
+        var new_config = filter_config (index);
+        foreach (var entry in new_config.entries) {
+            if (entry.value.workspace > index) {
+                entry.value.workspace--;
+            }
+        }
+
+        apply_config (new_config);
+    }
+
     public void apply_config (Gee.HashMap<string, AppConfig> new_config) {
         var builder = new VariantBuilder (new VariantType ("a(sibb)"));
 
@@ -89,5 +107,17 @@ public class Blockbuster.Common.PluginSettings : Object {
 
         config = new_config;
         schema.set_value ("app-workspace-bindings", builder.end ());
+    }
+
+    public void save_config_variant () {
+        config_variant = schema.get_value ("app-workspace-bindings");
+    }
+
+    public void restore_config_variant () {
+        if (config_variant != null) {
+            schema.set_value ("app-workspace-bindings", config_variant);
+            force_update_config ();
+            config_variant = null;
+        }
     }
 }
