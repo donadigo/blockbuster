@@ -113,7 +113,7 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
     }
 
     private void update () {
-        foreach (var row in list.get_children ()) {
+        foreach (weak Gtk.Widget row in list.get_children ()) {
             row.destroy ();
         }
 
@@ -140,7 +140,7 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
         unowned PluginSettings settings = PluginSettings.get_default ();
         var filtered = settings.filter_config (index);
 
-        foreach (var child in list.get_children ()) {
+        foreach (weak Gtk.Widget child in list.get_children ()) {
             var row = (AppRow)child;
 
             var app_config = new AppConfig (index, row.maximized, row.focused);
@@ -153,7 +153,7 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
 
     private void update_app_chooser () {
         string[] ids = {};
-        foreach (var row in list.get_children ()) {
+        foreach (weak Gtk.Widget row in list.get_children ()) {
             ids += ((AppRow)row).app_info.get_id ();
         }
 

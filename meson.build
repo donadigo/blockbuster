@@ -8,7 +8,7 @@ i18n = import('i18n')
 gnome = import('gnome')
 
 conf = configuration_data()
-conf.set_quoted('GETTEXT_PACKAGE', meson.project_name())
+conf.set('GETTEXT_PACKAGE', meson.project_name())
 
 css_resources = gnome.compile_resources(
     'css-resources', 'data/' + meson.project_name() + '.gresource.xml',
@@ -20,6 +20,8 @@ c_args = [
     '-DWNCK_I_KNOW_THIS_IS_UNSTABLE'
 ]
 
+posix_dep = meson.get_compiler('vala').find_library('posix')
+
 plugin_deps = [
     dependency ('granite'),
     dependency ('clutter-1.0'),
@@ -30,12 +32,13 @@ plugin_deps = [
 
 exec_deps = [
     dependency ('granite'),
-    dependency ('clutter-1.0')
+    posix_dep
 ]
 
 subdir ('data')
 subdir ('po')
 
+plugin_path = join_paths (get_option('libdir'), 'gala', 'plugins')
 plugin = shared_library ('blockbuster',
                     'plugin/Main.vala',
                     'plugin/Utils.vala',
@@ -46,7 +49,15 @@ plugin = shared_library ('blockbuster',
                     c_args: c_args,
                     dependencies: plugin_deps,
                     install: true,
-                    install_dir: join_paths (get_option('libdir'), 'gala', 'plugins'))
+                    install_dir: plugin_path)
+
+conf.set('PLUGIN_PATH', join_paths (plugin_path, 'libblockbuster.so'))
+
+config_file = configure_file(
+    input: 'src/config.vala.in',
+    output: 'config.vala',
+    configuration: conf
+)
 
 app = executable (meson.project_name (),
                 'src/Application.vala',
@@ -60,7 +71,8 @@ app = executable (meson.project_name (),
                 'src/AppChooserRow.vala',
                 'src/AppRow.vala',
                 'common/AppConfig.vala',
-                'common/PluginSettings.vala',                
+                'common/PluginSettings.vala',
+                config_file,
                 css_resources,
                 dependencies: exec_deps,
                 install: true)

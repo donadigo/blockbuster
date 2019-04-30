@@ -18,4 +18,38 @@
             <summary>Allow dragging a window to the bottom of the screen to open the multitasking view with it selected</summary>
         </key>
     </schema>
+
+    <schema id="com.github.donadigo.blockbuster.app" path="/com/github/donadigo/blockbuster/app/" gettext-domain="blockbuster">
+        <key name="plugin-loaded" type="b">
+            <default>false</default>
+            <summary>Whether the plugin is loaded</summary>
+            <description>This property indicates a one-time setting where the plugin
+            is not loaded after the user installed the app</description>
+        </key>
+        <key name="window-width" type="i">
+			<default>800</default>
+			<summary>Width of the window</summary>
+			<description>The width of the window</description>
+		</key>
+		<key name="window-height" type="i">
+			<default>600</default>
+			<summary>Height of the window</summary>
+			<description>The height of the window</description>
+		</key>
+		<key name="window-x" type="i">
+			<default>-1</default>
+			<summary>Window position</summary>
+			<description>The x axis of window position</description>
+		</key>
+		<key name="window-y" type="i">
+			<default>-1</default>
+			<summary>Window position</summary>
+			<description>The y axis of window position</description>
+		</key>
+		<key name="window-maximized" type="b">
+			<default>false</default>
+			<summary>Window maximized</summary>
+			<description>If window should be maximized</description>
+        </key>
+    </schema>
 </schemalist>

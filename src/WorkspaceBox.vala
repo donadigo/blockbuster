@@ -21,6 +21,7 @@ public class Blockbuster.WorkspaceBox : Gtk.EventBox {
     public int index { get; construct set; }
 
     public signal void removed ();
+    public signal void clear_all ();
 
     private Gtk.Label label;
     private Gtk.Button remove_button;
@@ -31,6 +32,8 @@ public class Blockbuster.WorkspaceBox : Gtk.EventBox {
         var main_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
 
         button = new WorkspaceButton ();
+        button.removed.connect (() => removed ());
+        button.clear_all.connect (() => clear_all ());
         button.enter_notify_event.connect (() => {
             remove_button.opacity = 1;
             return false;

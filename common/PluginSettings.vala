@@ -27,18 +27,18 @@ public class Blockbuster.Common.PluginSettings : Object {
     }
 
     public Gee.HashMap<string, AppConfig> config { get; private set; }
-
     public Settings schema { get; construct; }
 
     private Variant? config_variant;
 
     construct {
         schema = new Settings ("com.github.donadigo.blockbuster.plugin");
+        config = new Gee.HashMap<string, AppConfig> ();
+        force_update_config ();        
     }
 
     protected PluginSettings () {
-        config = new Gee.HashMap<string, AppConfig> ();
-        force_update_config ();
+
     }
 
     public Gee.HashMap<string, AppConfig> filter_config (int blacklist_workspace) {

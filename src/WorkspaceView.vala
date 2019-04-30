@@ -18,6 +18,11 @@
 
 using Blockbuster.Common;
 
+public enum Blockbuster.UndoAction {
+    REMOVE,
+    CLEAR_ALL
+}
+
 public class Blockbuster.WorkspaceView : Gtk.Overlay {
     public const string WORKSPACE_VIEW_ID = "workspaces";
     public const string CONFIG_VIEW_ID = "config";
@@ -38,6 +43,8 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
     private Gtk.Grid grid;
     private Granite.Widgets.Toast toast;
 
+    private UndoAction current_action;
+
     construct {
         var welcome = new Granite.Widgets.Welcome (
             _("Configure Workspaces"),
@@ -47,6 +54,7 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
         int button_index = welcome.append ("preferences-desktop-add", _("Add New Workspace"), _("Add a new empty workspace"));
         welcome.activated.connect (on_welcome_activated);
         welcome.get_button_from_index (button_index).icon.use_fallback = false;
+        welcome.show_all ();
 
         grid = new Gtk.Grid ();
         grid.column_spacing = 18;
@@ -74,7 +82,7 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
 
         toast = new Granite.Widgets.Toast ("");
         toast.set_default_action (_("Undo"));
-        toast.default_action.connect (on_restore_workspace);
+        toast.default_action.connect (on_restore_config);
         toast.show_all ();
 
         add_overlay (toast);
@@ -83,16 +91,20 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
     }
 
     public void add_new_workspace () {
-        var ws_box = new WorkspaceBox ((int)grid.get_children ().length ());
+        int n_children = (int)grid.get_children ().length ();
+
+        var ws_box = new WorkspaceBox (n_children);
         ws_box.button.clicked.connect (() => enter_configuration_view (ws_box));
         ws_box.removed.connect (on_removed_workspace);
+        ws_box.clear_all.connect (on_clear_all_workspace);
 
         int row, column;
-        calculate_next_position ((int)grid.get_children ().length (), out row, out column);
+        calculate_next_position (n_children, out row, out column);
         grid.attach (ws_box, column, row, 1, 1);
         grid.show_all ();
 
         update_window ();
+        notify_property ("n-workspaces");
     }
 
     private static void calculate_next_position (int n_children, out int row, out int column) {
@@ -111,36 +123,58 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
 
         toast.title = _("Workspace %i removed".printf (ws_box.index + 1));
 
-        reset_grid (grid.get_children ().length () - 1);
+        reset_grid (n_workspaces - 1);
 
         settings.save_config_variant ();
         settings.apply_remove_workspace (ws_box.index);
         update ();
 
+        current_action = UndoAction.REMOVE;
         toast.send_notification ();
+
+        notify_property ("n-workspaces");
     }
 
-    private void on_restore_workspace () {
-        reset_grid (grid.get_children ().length () + 1);
+    private void on_clear_all_workspace (WorkspaceBox ws_box) {
+        unowned PluginSettings settings = PluginSettings.get_default ();
+        
+        toast.title = _("Apps cleared");
+        
+        settings.save_config_variant ();
+        var new_config = settings.filter_config (ws_box.index);
+        settings.apply_config (new_config);
+        update ();
+
+        current_action = UndoAction.CLEAR_ALL;
+        toast.send_notification ();
+
+        notify_property ("n-workspaces");
+    }
+
+    private void on_restore_config () {
+        uint diff = current_action == UndoAction.REMOVE ? 1 : 0;
+        reset_grid (n_workspaces + diff);
 
         PluginSettings.get_default ().restore_config_variant ();
         update ();
+
+        notify_property ("n-workspaces");
     }
 
     private void on_welcome_activated (int index) {
         add_new_workspace ();
-        stack.set_visible_child_name (WORKSPACE_VIEW_ID);
+        update ();
     }
 
     private void reset_grid (uint n_workspaces) {
-        var children = grid.get_children ();
-        foreach (var child in children) {
+        List<weak Gtk.Widget> children = grid.get_children ();
+        foreach (weak Gtk.Widget child in children) {
             child.destroy ();
         }
 
         for (int i = 0; i < n_workspaces; i++) {
             add_new_workspace ();
-        }        
+        }
     }
 
     private void init_update () {
@@ -149,18 +183,26 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
             return a.value.workspace > b.value.workspace ? -1 : 1;
         });
 
-        int max = last_workspace.value.workspace + 1;
-        
-        for (int i = 0; i < max; i++) {
-            add_new_workspace ();
+        if (last_workspace != null) {
+            int max = last_workspace.value.workspace + 1;
+            
+            for (int i = 0; i < max; i++) {
+                add_new_workspace ();
+            }
         }
 
         update ();
     }
 
     private void update () {
-        var config = PluginSettings.get_default ().config;
+        if (n_workspaces == 0) {
+            stack.visible_child_name = WELCOME_VIEW_ID;
+            return;
+        } else {
+            stack.visible_child_name = WORKSPACE_VIEW_ID;
+        }
 
+        var config = PluginSettings.get_default ().config;
         var workspace_map = new Gee.HashMap<int, Gee.ArrayList<string>> ();
 
         // Transform <app-id, AppConfig> to <workspace-id, app-id>
@@ -174,7 +216,7 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
             }
         }
 
-        foreach (var child in grid.get_children ()) {
+        foreach (weak Gtk.Widget child in grid.get_children ()) {
             var view = (WorkspaceBox)child;
             if (workspace_map.has_key (view.index)) {
                 view.button.set_displayed_ids (workspace_map[view.index]);

@@ -27,17 +27,32 @@ public class Blockbuster.WorkspaceButton : Gtk.Button {
 
     private const Gdk.RGBA OVERLAY_COLOR = { 61 / 255.0, 75 / 255.0, 122 / 255.0, 1.0 };
 
+    public signal void removed ();
+    public signal void clear_all ();
+
     private IconContainer icon_container;
+
+    private Gtk.MenuItem clear_all_item;
+    private Gtk.Menu menu;
 
     construct {
         icon_container = new IconContainer ();
 
-        get_style_context ().add_class ("workspace-box");
+        var remove_item = new Gtk.MenuItem.with_label (_("Remove Workspace"));
+        remove_item.activate.connect (() => removed ());
 
+        clear_all_item = new Gtk.MenuItem.with_label (_("Clear All Apps")); 
+        clear_all_item.activate.connect (() => clear_all ());
+
+        menu = new Gtk.Menu ();
+        menu.add (remove_item);
+        menu.add (clear_all_item);
+        menu.show_all ();
+
+        get_style_context ().add_class ("workspace-box");
         set_size_request (300, 200);
     }
 
-    
     public WorkspaceButton () {
         image = new Gtk.Image.from_icon_name ("emblem-system-symbolic", Gtk.IconSize.DND);
     }
@@ -49,6 +64,16 @@ public class Blockbuster.WorkspaceButton : Gtk.Button {
             icon_container.set_displayed_ids (ids);
             image = icon_container;
         }
+    }
+
+    public override bool button_press_event (Gdk.EventButton e) {
+        if (e.button == Gdk.BUTTON_SECONDARY) {
+            clear_all_item.sensitive = icon_container.get_children ().length () > 0;
+            menu.popup_at_pointer (e);
+            return true;
+        }
+
+        return base.button_press_event (e);
     }
 
     public override bool draw (Cairo.Context cr) {

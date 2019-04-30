@@ -32,7 +32,6 @@ public class Blockbuster.MainWindow : Gtk.Window {
 
     construct {
         title = "Blockbuster";
-        set_size_request (800, 600);
 
         workspace_view = new WorkspaceView ();
         workspace_view.notify["n-workspaces"].connect (update_header_bar);
@@ -70,22 +69,65 @@ public class Blockbuster.MainWindow : Gtk.Window {
         add_button.tooltip_text = _("Add new workspace");
         header_bar.pack_start (add_button);
 
-        var css_provider = new Gtk.CssProvider ();
-        css_provider.load_from_resource ("com/github/donadigo/blockbuster/application.css");
-        Gtk.StyleContext.add_provider_for_screen (get_screen (), css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+        Gtk.StyleContext.add_provider_for_screen (get_screen (), Application.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
         add (stack);
 
         update_header_bar ();
+
+        var settings = Application.get_settings ();
+        int x = settings.get_int ("window-x");
+        int y = settings.get_int ("window-y");
+
+        if (x != -1 && y != -1) {
+            move (x, y);
+        }
+
+        resize (settings.get_int ("window-width"), settings.get_int ("window-height"));
+        if (settings.get_boolean ("window-maximized")) {
+            maximize ();
+        }
+
+        Unix.signal_add (Posix.Signal.INT, signal_source_func, Priority.HIGH);
+        Unix.signal_add (Posix.Signal.TERM, signal_source_func, Priority.HIGH);        
+    }
+
+    public override bool delete_event (Gdk.EventAny event) {
+        return request_quit ();
+    }
+
+    private bool signal_source_func () {
+        if (!request_quit ()) {
+            destroy ();
+        }
+
+        return true;
+    }
+
+    private bool request_quit () {
+        int x, y, width, height;
+        get_position (out x, out y);
+        get_size (out width, out height);
+
+        var settings = Application.get_settings ();
+        settings.set_int ("window-x", x);
+        settings.set_int ("window-y", y);
+        settings.set_int ("window-width", width);
+        settings.set_int ("window-height", height);
+        settings.set_boolean ("window-maximized", is_maximized);
+
+        return false;
     }
 
     private void on_entered_configuration_view () {
         set_widget_visible (back_button, true);
+        add_button.sensitive = false;
     }
 
     private void on_back_button_clicked () {
         workspace_view.stack.visible_child_name = WORKSPACE_VIEW_ID;
         set_widget_visible (back_button, false);
+        add_button.sensitive = true;
     }
 
     private void update_header_bar () {

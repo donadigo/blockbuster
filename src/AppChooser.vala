@@ -85,7 +85,7 @@ public class Blockbuster.AppChooser : Gtk.Popover {
     }
 
     private static int sort_function (Gtk.ListBoxRow list_box_row_1,
-                       Gtk.ListBoxRow list_box_row_2) {
+                                    Gtk.ListBoxRow list_box_row_2) {
         var row_1 = (AppChooserRow)list_box_row_1.get_child ();
         var row_2 = (AppChooserRow)list_box_row_2.get_child ();
 
