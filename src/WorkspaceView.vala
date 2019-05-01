@@ -195,11 +195,13 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
     }
 
     private void update () {
-        if (n_workspaces == 0) {
-            stack.visible_child_name = WELCOME_VIEW_ID;
-            return;
-        } else {
-            stack.visible_child_name = WORKSPACE_VIEW_ID;
+        if (stack.visible_child_name != CONFIG_VIEW_ID) {
+            if (n_workspaces == 0) {
+                stack.visible_child_name = WELCOME_VIEW_ID;
+                return;
+            } else {
+                stack.visible_child_name = WORKSPACE_VIEW_ID;
+            }
         }
 
         var config = PluginSettings.get_default ().config;

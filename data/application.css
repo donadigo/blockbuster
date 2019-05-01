@@ -104,12 +104,12 @@ menu {
 
 menuitem label {
     color: shade (@base_color, 0.3);
-	text-shadow: 0 1px shade (@BLUEBERRY_300, 0.9);
+    text-shadow: 0 1px shade (@BLUEBERRY_300, 0.9);
 }
 
 menuitem label:disabled {
     color: shade(@BLUEBERRY_300, 0.6);
-	text-shadow:none;
+    text-shadow:none;
 }
 
 .app-notification label {
@@ -163,7 +163,6 @@ menuitem label:disabled {
         0 8px 12px alpha (shade (@shadow_color, 0.8), 0.6);
 }
 
-/* 
-.workspace-box:active {
+/*.workspace-box:active {
 	background: linear-gradient(to bottom, alpha(@titlebar_color, 0.2), alpha(@BLUEBERRY_300, 0.05));
 } */
