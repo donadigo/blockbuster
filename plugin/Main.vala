@@ -161,10 +161,10 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		}
 
 		var workspace_bindings = PluginSettings.get_default ().config;
-        var config = workspace_bindings[desktop_file];
-        if (config == null) {
-            return false;
-        }
+		var config = workspace_bindings[desktop_file];
+		if (config == null) {
+			return false;
+		}
 
 		return config.workspace == window.get_workspace ().index ();
 	}
@@ -248,10 +248,10 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			return mwin;
 		}
 
-        var config = workspace_bindings[desktop_file];
-        if (config == null) {
-            return mwin;
-        }
+		var config = workspace_bindings[desktop_file];
+		if (config == null) {
+			return mwin;
+		}
 
 		int workspace_idx = config.workspace;
 
@@ -321,12 +321,12 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			int prev_index = window_owners[mwin];
 			previous = screen.get_workspace_by_index (prev_index);
 			window_owners.unset (mwin);
-        }
-        
-        // Check if the owner workspace was removed
-        if (previous == null || previous == workspace) {
+		}
+		
+		// Check if the owner workspace was removed
+		if (previous == null || previous == workspace) {
 			previous = Utils.find_closest_non_empty_workspace (current_idx, screen);
-        }
+		}
 
 		if (previous != null) {
 			previous.activate (screen.get_display ().get_current_time ());
@@ -365,13 +365,13 @@ public Gala.PluginInfo register_plugin () {
 		typeof (Gala.Plugins.Blockbuster.Main),  // the type of your plugin class
 
 		Gala.PluginFunction.ADDITION,         // the function which your plugin
-		                                      // fulfils, ADDITION means nothing
-		                                      // specific
+											  // fulfils, ADDITION means nothing
+											  // specific
 
 		Gala.LoadPriority.IMMEDIATE           // indicates whether your plugin's
-		                                      // start can be delayed until gala
-		                                      // has loaded the important stuff or
-		                                      // if you want your plugin to start
-		                                      // right away. False means wait.
+											  // start can be delayed until gala
+											  // has loaded the important stuff or
+											  // if you want your plugin to start
+											  // right away. False means wait.
 	};
 }
