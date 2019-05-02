@@ -149,6 +149,26 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		}
 	}
 
+	static bool is_on_dedicated_workspace (Meta.Window window) {
+		unowned Wnck.Window? wnck_window = Utils.get_wnck_for_window (window);
+		if (wnck_window == null) {
+			return false;
+		}
+
+		string? desktop_file = Utils.get_desktop_file_for_window (wnck_window);
+		if (desktop_file == null) {
+			return false;
+		}
+
+		var workspace_bindings = PluginSettings.get_default ().config;
+        var config = workspace_bindings[desktop_file];
+        if (config == null) {
+            return false;
+        }
+
+		return config.workspace == window.get_workspace ().index ();
+	}
+
 	public override void destroy ()
 	{
 		dirty_windows.clear ();
@@ -228,7 +248,11 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			return mwin;
 		}
 
-		var config = workspace_bindings[desktop_file];
+        var config = workspace_bindings[desktop_file];
+        if (config == null) {
+            return mwin;
+        }
+
 		int workspace_idx = config.workspace;
 
 		if (window.get_workspace ().get_number () == workspace_idx) {
@@ -297,9 +321,12 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			int prev_index = window_owners[mwin];
 			previous = screen.get_workspace_by_index (prev_index);
 			window_owners.unset (mwin);
-		} else {
+        }
+        
+        // Check if the owner workspace was removed
+        if (previous == null || previous == workspace) {
 			previous = Utils.find_closest_non_empty_workspace (current_idx, screen);
-		}
+        }
 
 		if (previous != null) {
 			previous.activate (screen.get_display ().get_current_time ());
@@ -328,22 +355,6 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		window.minimize ();
 		workspace.activate_with_focus (window, wm.get_screen ().get_display ().get_current_time ());
 		window.unminimize ();
-	}
-
-	bool is_on_dedicated_workspace (Meta.Window window) {
-		unowned Wnck.Window? wnck_window = Utils.get_wnck_for_window (window);
-		if (wnck_window == null) {
-			return false;
-		}
-
-		string? desktop_file = Utils.get_desktop_file_for_window (wnck_window);
-		if (desktop_file == null) {
-			return false;
-		}
-
-		var workspace_bindings = PluginSettings.get_default ().config;
-		var config = workspace_bindings[desktop_file];
-		return config.workspace == window.get_workspace ().index ();
 	}
 }
 

@@ -47,10 +47,6 @@ public class Blockbuster.AppRow : Gtk.ListBoxRow {
 
     public signal void config_changed ();
 
-    public AppRow (AppInfo app_info) {
-        Object (app_info: app_info);
-    }
-
     construct {
         var image = new Gtk.Image.from_gicon (app_info.get_icon (), Gtk.IconSize.DIALOG);
         image.pixel_size = 48;
@@ -93,5 +89,9 @@ public class Blockbuster.AppRow : Gtk.ListBoxRow {
 
         add (main_grid);
         show_all ();
+    }
+
+    public AppRow (AppInfo app_info) {
+        Object (app_info: app_info);
     }
 }

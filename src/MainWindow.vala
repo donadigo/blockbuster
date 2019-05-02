@@ -43,11 +43,13 @@ public class Blockbuster.MainWindow : Gtk.Window {
          */
         workspace_view.update_window.connect (() => queue_resize ());
 
+        var behaviour_view = new BehaviourView ();
+
         stack = new Gtk.Stack ();
         stack.transition_type = Gtk.StackTransitionType.SLIDE_LEFT_RIGHT;
         stack.notify["visible-child-name"].connect (update_header_bar);
         stack.add_titled (workspace_view, WORKSPACE_VIEW_ID, _("Applications"));
-        stack.add_titled (new Gtk.Grid (), BEHAVIOUR_VIEW_ID, _("Behaviour"));
+        stack.add_titled (behaviour_view, BEHAVIOUR_VIEW_ID, _("Behaviour"));
 
         var switcher = new Gtk.StackSwitcher ();
         switcher.set_stack (stack);
