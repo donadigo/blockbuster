@@ -259,6 +259,8 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 			return mwin;
 		}
 
+		window_owners[mwin] = mwin.get_workspace ().index ();
+
 		bool append = screen.get_workspace_by_index (workspace_idx) == null;
 		mwin.change_workspace_by_index (workspace_idx, append);
 
