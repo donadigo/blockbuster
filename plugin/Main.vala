@@ -23,7 +23,7 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 	Gee.LinkedList<unowned Meta.Window> dirty_windows;
 
 	WindowMovementTracker tracker;
-    int prev_index = -1;
+	int prev_index = -1;
 
 	delegate bool IterateCallback<T> (T actor);
 
@@ -34,9 +34,9 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 
 		dirty_windows = new Gee.LinkedList<unowned Meta.Window> ();
 
-        unowned Meta.Screen mscreen = wm.get_screen ();
+		unowned Meta.Screen mscreen = wm.get_screen ();
 
-        /**
+		/**
 		 * Using the Meta.Display.window_created signal doesn't work
 		 * here because we want Bamf to actually update it's own list of
 		 * windows from Wnck to recognize what application owns the window
@@ -44,13 +44,13 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		 */
 		unowned Wnck.Screen screen = Wnck.Screen.@get (mscreen.get_screen_number ());
 		screen.window_opened.connect (on_wnck_window_opened);
-        screen.window_closed.connect (on_wnck_window_closed);
+		screen.window_closed.connect (on_wnck_window_closed);
 
-        mscreen.workspace_switched.connect ((from, to) => {
-            prev_index = from;
-        });
+		mscreen.workspace_switched.connect ((from, to) => {
+			prev_index = from;
+		});
 
-        prev_index = mscreen.get_active_workspace_index ();
+		prev_index = mscreen.get_active_workspace_index ();
 
 		tracker = new WindowMovementTracker (mscreen.get_display ());
 		tracker.open.connect (open_multitasking_view);
