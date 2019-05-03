@@ -60,11 +60,11 @@ public class Blockbuster.ConfigurationView : Gtk.Grid {
         toolbar.icon_size = Gtk.IconSize.SMALL_TOOLBAR;
 
         var add_button = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("application-add-symbolic", Gtk.IconSize.BUTTON), null);
-        add_button.tooltip_text = _("Add Default App…");
+        add_button.tooltip_text = _("Add App…");
         add_button.clicked.connect (() => {app_chooser.show_all ();});
 
         remove_button = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("list-remove-symbolic", Gtk.IconSize.BUTTON), null);
-        remove_button.tooltip_text = _("Remove Default App");
+        remove_button.tooltip_text = _("Remove App");
         remove_button.clicked.connect (on_remove_button_clicked);
         remove_button.sensitive = false;
 

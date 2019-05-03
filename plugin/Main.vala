@@ -21,9 +21,9 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 	Gala.WindowManager? wm = null;
 
 	Gee.LinkedList<unowned Meta.Window> dirty_windows;
-	Gee.HashMap<unowned Meta.Window, int> window_owners;
 
 	WindowMovementTracker tracker;
+    int prev_index = -1;
 
 	delegate bool IterateCallback<T> (T actor);
 
@@ -33,19 +33,26 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		PluginSettings.get_default ().schema.changed.connect (on_settings_changed);
 
 		dirty_windows = new Gee.LinkedList<unowned Meta.Window> ();
-		window_owners = new Gee.HashMap<unowned Meta.Window, int> ();
 
-		/**
+        unowned Meta.Screen mscreen = wm.get_screen ();
+
+        /**
 		 * Using the Meta.Display.window_created signal doesn't work
 		 * here because we want Bamf to actually update it's own list of
 		 * windows from Wnck to recognize what application owns the window
 		 * Bamf.Matcher.view_* signals also don't work here.
 		 */
-		var screen = Wnck.Screen.@get (wm.get_screen ().get_screen_number ());
+		unowned Wnck.Screen screen = Wnck.Screen.@get (mscreen.get_screen_number ());
 		screen.window_opened.connect (on_wnck_window_opened);
-		screen.window_closed.connect (on_wnck_window_closed);
+        screen.window_closed.connect (on_wnck_window_closed);
 
-		tracker = new WindowMovementTracker (wm.get_screen ().get_display ());
+        mscreen.workspace_switched.connect ((from, to) => {
+            prev_index = from;
+        });
+
+        prev_index = mscreen.get_active_workspace_index ();
+
+		tracker = new WindowMovementTracker (mscreen.get_display ());
 		tracker.open.connect (open_multitasking_view);
 		update_tracker ();
 	}
@@ -172,7 +179,6 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 	public override void destroy ()
 	{
 		dirty_windows.clear ();
-		window_owners.clear ();
 	}
 
 	void on_settings_changed (string key) {
@@ -213,7 +219,6 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		}
 
 		if (workspace != null) {
-			window_owners[window] = window.get_workspace ().index ();
 			window.change_workspace (workspace);
 			switch_workspace_focus (window, workspace);
 		}
@@ -258,8 +263,6 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		if (window.get_workspace ().get_number () == workspace_idx) {
 			return mwin;
 		}
-
-		window_owners[mwin] = mwin.get_workspace ().index ();
 
 		bool append = screen.get_workspace_by_index (workspace_idx) == null;
 		mwin.change_workspace_by_index (workspace_idx, append);
@@ -319,10 +322,8 @@ public class Gala.Plugins.Blockbuster.Main : Gala.Plugin {
 		unowned Meta.Workspace? previous = null;
 
 		unowned Meta.Window? mwin = Utils.get_meta_for_window (screen, window);
-		if (mwin != null && window_owners.has_key (mwin)) {
-			int prev_index = window_owners[mwin];
+		if (mwin != null) {
 			previous = screen.get_workspace_by_index (prev_index);
-			window_owners.unset (mwin);
 		}
 		
 		// Check if the owner workspace was removed

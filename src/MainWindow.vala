@@ -32,6 +32,7 @@ public class Blockbuster.MainWindow : Gtk.Window {
 
     construct {
         title = "Blockbuster";
+        icon_name = "com.github.donadigo.blockbuster";
 
         workspace_view = new WorkspaceView ();
         workspace_view.notify["n-workspaces"].connect (update_header_bar);
