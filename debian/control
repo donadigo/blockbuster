@@ -1,0 +1,21 @@
+Source: com.github.donadigo.blockbuster
+Section: utils
+Priority: optional
+Maintainer: Adam Bieńkowski <donadigos159@gmail.com>
+Build-Depends: debhelper (>= 9),
+               libgranite-dev,
+               libgtk-3-dev,
+               libgala-dev,
+               libclutter-1.0-dev,
+               libbamf3-dev,
+               libwnck-3-dev,
+               meson,
+               valac (>= 0.26)
+
+Standards-Version: 3.9.6
+Package: com.github.donadigo.blockbuster
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: dpkg (>= 1.15.6)
+Description: Blockbuster
+ Take control of your workspaces
