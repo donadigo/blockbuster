@@ -20,6 +20,11 @@
     <binary>com.github.donadigo.blockbuster</binary>
   </provides>
   <releases>
+    <release version="0.9.0" date="2019-05-04">
+      <description>
+        <p>Initial release</p>
+      </description>
+    </release>  
   </releases>
   <screenshots>
     <screenshot type="default">
