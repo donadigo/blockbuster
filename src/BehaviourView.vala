@@ -35,7 +35,7 @@ public class Blockbuster.BehaviourView : Gtk.Box {
         );
 
         var snap_to_bottom = new SettingRow (
-            _("Snap a window to bottom to open mutltiasking view"),
+            _("Snap a window to bottom to open multitasking view"),
             _("Dragging a window to the bottom of the screen will open the multitasking view with the selected window"),
             "snap-to-bottom"
         );

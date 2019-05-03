@@ -5,7 +5,7 @@
 
 Blockbuster allows you to pre-assign applications to their workspaces so that when you open an application, it appears on it's workspace.
 Other features include:
-* Snap a window to bottom to open mutltiasking view
+* Snap a window to bottom to open multitasking view
 * Switch to previous workspace if current is empty
 * Switch to a new workspace when a window is maximized
 
