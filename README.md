@@ -1,9 +1,7 @@
 # Blockbuster
-### Configure your workspaces
+### Take control of your workspaces.
 
 ![screenshot](data/Screenshot_1.png)
-
-Take control of your workspaces.
 
 Blockbuster allows you to pre-assign applications to their workspaces so that when you open an application, it appears on it's workspace.
 Other features include:
