@@ -48,7 +48,7 @@ public class Blockbuster.WorkspaceView : Gtk.Overlay {
     construct {
         var welcome = new Granite.Widgets.Welcome (
             _("Configure Workspaces"),
-             _("Add new workspaces and configure what applications\nappear on them by default.")
+            _("Add new workspaces and configure what applications\nappear on them by default.")
         );
 
         int button_index = welcome.append ("preferences-desktop-add", _("Add New Workspace"), _("Add a new empty workspace"));
