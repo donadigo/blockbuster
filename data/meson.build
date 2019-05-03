@@ -25,6 +25,11 @@ install_data(
     install_dir: join_paths(get_option('datadir'), 'applications')
 )
 
+install_data(
+    'com.github.donadigo.blockbuster.appdata.xml',
+    install_dir: join_paths(get_option('datadir'), 'metainfo')
+)
+
 # icons_resources = gnome.compile_resources(
 #     'icons-gresource',
 #     'icons/icons.gresource.xml',
