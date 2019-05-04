@@ -6,5 +6,5 @@ Comment=Configure your workspaces
 Exec=com.github.donadigo.blockbuster
 Icon=com.github.donadigo.blockbuster
 Terminal=false
-Categories=Utility;GTK;DesktopSettings
+Categories=Utility;GTK;DesktopSettings;
 Keywords=workspace;configure;
