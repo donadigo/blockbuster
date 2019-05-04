@@ -1,5 +1,5 @@
 project ('com.github.donadigo.blockbuster', ['vala', 'c'],
-        version: '0.9.1')
+        version: '0.9.2')
 
 add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format (meson.project_name()), language:'c')
 add_project_arguments(['--vapidir', join_paths(meson.current_source_dir(), 'vapi')],

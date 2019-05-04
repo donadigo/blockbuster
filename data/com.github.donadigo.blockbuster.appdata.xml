@@ -20,6 +20,11 @@
     <binary>com.github.donadigo.blockbuster</binary>
   </provides>
   <releases>
+    <release version="0.9.2" date="2019-05-04">
+      <description>
+        <p>Fix appdata files</p>
+      </description>
+    </release>    
     <release version="0.9.1" date="2019-05-04">
       <description>
         <p>Install metadata</p>
