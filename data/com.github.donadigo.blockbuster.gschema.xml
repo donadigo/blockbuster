@@ -26,6 +26,10 @@
             <description>This property indicates a one-time setting where the plugin
             is not loaded after the user installed the app</description>
         </key>
+        <key name="show-snap-bottom" type="b">
+            <default>false</default>
+            <summary>Whether the snap to bottom option is shown in the application</summary>
+        </key>
         <key name="window-width" type="i">
 			<default>800</default>
 			<summary>Width of the window</summary>

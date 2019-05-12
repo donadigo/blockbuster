@@ -34,20 +34,25 @@ public class Blockbuster.BehaviourView : Gtk.Box {
             "switch-workspace-on-maximize"
         );
 
-        var snap_to_bottom = new SettingRow (
-            _("Snap a window to bottom to open multitasking view"),
-            _("Dragging a window to the bottom of the screen will open the multitasking view with the selected window"),
-            "snap-to-bottom"
-        );
-
         list_box = new Gtk.ListBox ();
         list_box.get_style_context ().add_class ("settings-list");
         list_box.selection_mode = Gtk.SelectionMode.NONE;
         list_box.add (return_on_empty);
         list_box.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
         list_box.add (switch_on_maximize);
-        list_box.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
-        list_box.add (snap_to_bottom);
+
+        if (Application.get_settings ().get_boolean ("show-snap-bottom")) {
+            var snap_to_bottom = new SettingRow (
+                _("Snap a window to bottom to open multitasking view"),
+                _("Dragging a window to the bottom of the screen will open the multitasking view with the selected window"),
+                "snap-to-bottom"
+            );
+
+
+            list_box.add (new Gtk.Separator (Gtk.Orientation.HORIZONTAL));
+            list_box.add (snap_to_bottom);
+        }
+
         list_box.show_all ();
         add (list_box);
 
